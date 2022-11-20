@@ -1,0 +1,37 @@
+---
+title: "In-class Exercise 1"
+editor: visual
+---
+
+## Overview
+
+This exercise covers the following:
+
+1.  [Spatial Weights and Applications](https://r4gdsa.netlify.app/chap03.html)
+
+## Getting Started
+
+Install and load the required packages. **spdep** package is a collection of functions for creating spatial weights matrix objects.
+
+```{r}
+# remotes::install_version('spData', version = '2.2.1')
+# install.packages('spdep')
+# pacman::p_load(sf, spdep, tidyverse, tmap)
+```
+
+## Importing Geospatial Data
+
+This code chunk will import ESRI shapefile into R.
+
+```{r}
+# hunan <- st_read(dsn = 'data/geospatial',
+#                 layer = 'Hunan')
+```
+
+## Importing csv Data
+
+This code chunk will import Hunan_2012.csv file into R
+
+```{r}
+# hunan2012 <- read_csv('data/aspatial/Hunan_2012.csv')
+```

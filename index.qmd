@@ -1,0 +1,12 @@
+---
+title: "ISSS624"
+---
+
+Welcome to ISSS624 Applied Geospatial Analytics!
+
+In this webpage, I am going to share with you my learning journey of geospatial analytics.
+
+Reference has been taken from the following webpages/resources:
+
+1.  [ISSS624 - Applied Geospatial Analytics](https://isss624-ay2022-23nov.netlify.app/)
+2.  [R for Geospatial Data Science and Analytics](https://r4gdsa.netlify.app/)
