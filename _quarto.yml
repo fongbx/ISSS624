@@ -17,6 +17,10 @@ website:
         menu: 
           - text: In-class Exercise 1
             href: in-class_exercises/in-class_ex1/in-class_ex1.qmd
+      - text: Assignments
+        menu: 
+          - text: Assignment 1
+            href: assignments/assignment_ex1/assignment_ex1.qmd
     right:
       - href: index.qmd
         text: Home

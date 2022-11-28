@@ -122,6 +122,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   }
 }</script>
 
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -169,6 +170,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
         <li>
     <a class="dropdown-item" href="../../in-class_exercises/in-class_ex1/in-class_ex1.html">
  <span class="dropdown-text">In-class Exercise 1</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-assignments" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Assignments</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-assignments">    
+        <li>
+    <a class="dropdown-item" href="../../assignments/assignment_ex1/assignment_ex1.html">
+ <span class="dropdown-text">Assignment 1</span></a>
   </li>  
     </ul>
   </li>
@@ -437,7 +449,9 @@ Moran I statistic       Expectation          Variance
 <h3 class="anchored" data-anchor-id="computing-monte-carlo-morans-i">Computing Monte Carlo Moran’s I</h3>
 <p>The <em>moran.test</em> method above makes some restrictive assumptions about the data and thus cannot always be reliable. Another approach is a Monte Carlo test which makes no assumption about the dataset including the shape and layout of each polygon.</p>
 <p>The code chunk below performs permutation test for Moran’s I statistic by using <a href="https://r-spatial.github.io/spdep/reference/moran.mc.html"><em>moran.mc()</em></a> of <strong>spdep</strong>. A total of 1000 simulations will be performed.</p>
-<p>Moran I statistic is 0.3007. Based on simulation, the pseudo p-value is 0.001. This pseudo p-value is calculated based on the (Num of simulated Moran’s I values more extreme than our observed statistic + 1) / (Num of total simulations + 1). The low pseudo p-value of 0.001 means that that is a 0.1% probability that we will get a simulation results more extreme than our observed statistic, in other words, there is a 0.1% probability that we would be wrong in rejecting the null hypothesis. We have sufficient evidence that Moran I statistic is less than or equal ro 0.3007.</p>
+<p>The results show that pseudo p-value is 0.001. This pseudo p-value is computed using <span class="math display">\[\frac{N_extreme + 1}{N+1}\]</span></p>
+<p>where <span class="math display">\[N_extreme\]</span> is the number of simulated Moran’s I values more extreme than our observed statistic and N is the total number of simulations. Here, given a pseudo p-value of 0.001, it means that just 0.1 simulation result out of the 1000 simulations (as (0.1+1)/(1000+1) = 0.001) was more extreme than our observed Moran’s I statistic of 0.3007.</p>
+<p>This means that our observed Moran’s I statistic of 0.3007 is not a value we would expect to compute if the variable of interest (i.e., GDPPC) were randomly distributed across each county. We can also interpret it as there is a 0.1% (0.001) probability that we would be wrong in rejecting the null hypothesis. Hence, we reject the null hypothesis that the variable of interest is randomly distributed.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>bperm_moran <span class="ot">&lt;-</span> <span class="fu">moran.mc</span>(hunan<span class="sc">$</span>GDPPC,</span>
@@ -517,7 +531,7 @@ Geary C statistic       Expectation          Variance
 <section id="computing-monte-carlo-gearys-c" class="level3">
 <h3 class="anchored" data-anchor-id="computing-monte-carlo-gearys-c">Computing Monte Carlo Geary’s C</h3>
 <p>The code chunk below performs permutation test for Geary’s C statistic by using <a href="https://r-spatial.github.io/spdep/reference/geary.mc.html"><em>geary.mc()</em></a> of <strong>spdep</strong>.</p>
-<p>Geary C statistic is 0.6907. Based on simulation, the pseudo p-value is 0.001, which is less than alpha 0.05. We thus have sufficient evidence that Geary C statistic is less than or equal to 0.6907.</p>
+<p>Geary C statistic is 0.6907. Based on simulation, the pseudo p-value is 0.001, which is less than alpha 0.05. We thus have sufficient evidence evidence to reject the null hypothesis that the distribution is random.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>bperm_geary <span class="ot">&lt;-</span> <span class="fu">geary.mc</span>(hunan<span class="sc">$</span>GDPPC,</span>

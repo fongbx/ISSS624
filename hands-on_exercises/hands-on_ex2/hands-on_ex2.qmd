@@ -113,7 +113,11 @@ The *moran.test* method above makes some restrictive assumptions about the data 
 
 The code chunk below performs permutation test for Moran's I statistic by using [*moran.mc()*](https://r-spatial.github.io/spdep/reference/moran.mc.html) of **spdep**. A total of 1000 simulations will be performed.
 
-Moran I statistic is 0.3007. Based on simulation, the pseudo p-value is 0.001. This pseudo p-value is calculated based on the (Num of simulated Moran's I values more extreme than our observed statistic + 1) / (Num of total simulations + 1). The low pseudo p-value of 0.001 means that that is a 0.1% probability that we will get a simulation results more extreme than our observed statistic, in other words, there is a 0.1% probability that we would be wrong in rejecting the null hypothesis. We have sufficient evidence that Moran I statistic is less than or equal ro 0.3007.
+The results show that pseudo p-value is 0.001. This pseudo p-value is computed using $$\frac{N_extreme + 1}{N+1}$$
+
+where $$N_extreme$$ is the number of simulated Moran's I values more extreme than our observed statistic and N is the total number of simulations. Here, given a pseudo p-value of 0.001, it means that just 0.1 simulation result out of the 1000 simulations (as (0.1+1)/(1000+1) = 0.001) was more extreme than our observed Moran's I statistic of 0.3007.
+
+This means that our observed Moran's I statistic of 0.3007 is not a value we would expect to compute if the variable of interest (i.e., GDPPC) were randomly distributed across each county. We can also interpret it as there is a 0.1% (0.001) probability that we would be wrong in rejecting the null hypothesis. Hence, we reject the null hypothesis that the variable of interest is randomly distributed.
 
 ```{r}
 set.seed(1234)
@@ -165,7 +169,7 @@ geary.test(hunan$GDPPC, listw=rswm_q)
 
 The code chunk below performs permutation test for Geary's C statistic by using [*geary.mc()*](https://r-spatial.github.io/spdep/reference/geary.mc.html) of **spdep**.
 
-Geary C statistic is 0.6907. Based on simulation, the pseudo p-value is 0.001, which is less than alpha 0.05. We thus have sufficient evidence that Geary C statistic is less than or equal to 0.6907.
+Geary C statistic is 0.6907. Based on simulation, the pseudo p-value is 0.001, which is less than alpha 0.05. We thus have sufficient evidence evidence to reject the null hypothesis that the distribution is random.
 
 ```{r}
 set.seed(1234)
