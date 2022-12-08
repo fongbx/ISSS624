@@ -94,6 +94,10 @@ rswm_q <- nb2listw(wm_q,
 rswm_q
 ```
 
+```{r}
+str(rswm_q)
+```
+
 ### Global Spatial Autocorrelation: Moran's I
 
 In this section, we will learn how to perform Moran's I statistics testing using [*moran.test()*](https://r-spatial.github.io/spdep/reference/moran.test.html) of **spdep**.
