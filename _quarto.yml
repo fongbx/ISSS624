@@ -15,14 +15,14 @@ website:
             href: hands-on_exercises/hands-on_ex2/hands-on_ex2.qmd
           - text: Hands-on Exercise 3
             href: hands-on_exercises/hands-on_ex3/hands-on_ex3.qmd
+          - text: Hands-on Exercise 4
+            href: hands-on_exercises/hands-on_ex4/hands-on_ex4.qmd
+          - text: Hands-on Exercise 5
+            href: hands-on_exercises/hands-on_ex4/hands-on_ex5.qmd  
       - text: In-class Exercises
         menu: 
           - text: In-class Exercise 1
             href: in-class_exercises/in-class_ex1/in-class_ex1.qmd
-      - text: Assignments
-        menu: 
-          - text: Assignment 1
-            href: assignments/assignment_ex1/assignment_ex1.qmd
     right:
       - href: index.qmd
         text: Home

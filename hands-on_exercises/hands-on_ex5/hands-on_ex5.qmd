@@ -1,0 +1,230 @@
+---
+title: "Hands-on Exercise 5"
+editor: visual
+---
+
+## Overview
+
+The objective of this exercise is to come up with an explanatory model for the functional and non-functional water points in Nigeria.
+
+## Getting Started
+
+Install and load the necessary packages.
+
+```{r}
+pacman::p_load(sf, tidyverse, funModeling, blorr, corrplot, ggpubr,tmap, skimr, caret)
+library(GWmodel)
+```
+
+## Data Import and Preparation
+
+### Importing RDS data
+
+```{r}
+osun <- read_rds("data/rds/Osun.rds")
+osun_wp_sf <- read_rds("data/rds/Osun_wp_sf.rds")
+```
+
+Check the status field. True refers to all the functional, functional not in use water points, whereas False refers to the non-functional water points. Those with unknown status have been removed.
+
+```{r}
+osun_wp_sf %>% freq(input = "status")
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(osun) +
+  tmap_options(check.and.fix = TRUE) +
+  tm_polygons(alpha = 0.4) +
+  tm_shape(osun_wp_sf) +
+  tm_dots(col = "status",
+          alpha = 0.6) +
+  tm_view(set.zoom.limits = c(9,12))
+```
+
+## Exploratory Data Analysis
+
+```{r}
+osun_wp_sf %>% skim()
+```
+
+We will clean up the osun dataset to only include our interested independent variables. We also convert usage_capacity to a factor (categorical variable) as it only has two values/levels - 300 and 1000.
+
+```{r}
+osun_wp_sf_clean <- osun_wp_sf %>% 
+  filter_at(vars(status,
+                 distance_to_primary_road,
+                 distance_to_secondary_road,
+                 distance_to_tertiary_road,
+                 distance_to_city,
+                 distance_to_town,
+                 water_point_population,
+                 local_population_1km,
+                 usage_capacity,
+                 is_urban,
+                 water_source_clean),
+            all_vars(!is.na(.))) %>% 
+  mutate(usage_capacity = as.factor(usage_capacity))
+```
+
+## Correlation Analysis
+
+Note that sf dataframe is not suitable for computing correlation analysis as sf dataframe has a geometry column. We can drop the geometry column using `st_set_geometry(NULL)` or `st_drop_geometry()`.
+
+```{r}
+osun_wp <- osun_wp_sf_clean %>% 
+  select(c(7,35:39,42:43,46:47,57)) %>% 
+  st_set_geometry(NULL)
+```
+
+From the correlation analysis of the numerical variables, we note that none of the independent variables are highly correlated.
+
+```{r}
+cluster_vars.cor = cor(
+  osun_wp[,2:7])
+corrplot.mixed(cluster_vars.cor,
+               lower = "ellipse",
+               upper = "number",
+               tl.pos = "lt",
+               diag = "l",
+               ti.col = "black")
+```
+
+## Logistic Model
+
+```{r}
+model <- glm(status ~ distance_to_primary_road +
+               distance_to_secondary_road +
+               distance_to_tertiary_road +
+               distance_to_city +
+               distance_to_town +
+               is_urban +
+               usage_capacity +
+               water_source_clean +
+               water_point_population +
+               local_population_1km,
+             data = osun_wp_sf_clean,
+             family = binomial(link = "logit"))
+```
+
+To view the model results in a neater report format than the standard `summary(model)`, we use the following code chunk:
+
+```{r}
+blr_regress(model)
+```
+
+Generating the confusion matrix
+
+```{r}
+blr_confusion_matrix(model, cutoff = 0.5)
+```
+
+```{r}
+osun_wp_sp <- osun_wp_sf_clean %>% 
+  select(c(status,
+           distance_to_primary_road,
+           distance_to_secondary_road,
+           distance_to_tertiary_road,
+           distance_to_city,
+           distance_to_town,
+           water_point_population,
+           local_population_1km,
+           is_urban,
+           usage_capacity,
+           water_source_clean)) %>% 
+  as_Spatial()
+osun_wp_sp
+```
+
+```{r}
+bw.fixed <- bw.ggwr(status ~
+                      distance_to_primary_road +
+                      distance_to_secondary_road +
+                      distance_to_tertiary_road +
+                      distance_to_city +
+                      distance_to_town +
+                      water_point_population +
+                      local_population_1km +
+                      is_urban +
+                      usage_capacity +
+                      water_source_clean,
+                    data = osun_wp_sp,
+                    family = "binomial",
+                    approach = "AIC",
+                    kernel = "gaussian",
+                    adaptive = FALSE,
+                    longlat = FALSE)
+```
+
+Note that the bandwidth to use might not be the very last value as the above code chunk will iterate through. To get the bandwidth value with the optimal AICc value, we should call `bw.fixed`.
+
+```{r}
+bandwidth_to_use <- bw.fixed
+bandwidth_to_use
+```
+
+```{r}
+gwlr.fixed <- ggwr.basic(status ~
+                           distance_to_primary_road +
+                           distance_to_secondary_road +
+                           distance_to_tertiary_road +
+                           distance_to_city +
+                           distance_to_town +
+                           water_point_population +
+                           local_population_1km +
+                           is_urban +
+                           usage_capacity +
+                           water_source_clean,
+                         data = osun_wp_sp,
+                         bw = bandwidth_to_use,
+                         family = "binomial",
+                         kernel = "gaussian",
+                         adaptive = FALSE,
+                         longlat = FALSE)
+```
+
+### Model Assessment
+
+To assess the performance of the gwlr, firstly, we will convert the SDF object in as a data frame by using the code chunk below.
+
+```{r}
+gwr.fixed <- as.data.frame(gwlr.fixed$SDF)
+```
+
+Next, we will label yhat values greater than or equal to 0.5 into 1 else 0. The result of the logit comparison operation will be saved into a field called most.
+
+```{r}
+gwr.fixed <- gwr.fixed %>% 
+  mutate(most = ifelse(
+    gwr.fixed$yhat >= 0.5, T, F
+  ))
+```
+
+```{r}
+gwr.fixed$y <- as.factor(gwr.fixed$y)
+gwr.fixed$most <- as.factor(gwr.fixed$most)
+CM <- confusionMatrix(data = gwr.fixed$most,
+                      reference = gwr.fixed$y)
+CM
+```
+
+### Visualising gwLR
+
+```{r}
+osun_wp_sf_selected <- osun_wp_sf_clean %>% 
+  select(c(ADM2_EN, ADM2_PCODE,
+           ADM1_EN, ADM1_PCODE,
+           status))
+
+gwr_sf.fixed <- cbind(osun_wp_sf_selected,gwr.fixed)
+
+tmap_mode("view")
+prob_T <- tm_shape(osun) +
+  tm_polygons(alpha = 0.1) +
+  tm_shape(gwr_sf.fixed) +
+  tm_dots(col = "yhat",
+          border.col = "gray60",
+          border.lwd = 1) +
+  tm_view(set.zoom.limits = c(8,14))
+prob_T
+```
